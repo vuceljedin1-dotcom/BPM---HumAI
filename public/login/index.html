@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="bs"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HumAI • Log In</title><link rel="stylesheet" href="/styles.css">
+</head><body>
+<header><div class="container"><h1>HumAI • Log In</h1></div></header>
+<main class="container">
+  <section class="card">
+    <div class="grid">
+      <label>Email<input id="email" type="email" placeholder="ammar@bpm.ba"></label>
+      <label>Lozinka<input id="pass" type="password" placeholder="demo: bpm2025"></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="btn" class="btn btn-primary">Prijavi se</button>
+    </div>
+  </section>
+</main>
+<div class="footer">© bpm.ba • HumAI</div>
+<script>
+document.getElementById('btn').onclick = async () => {
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('pass').value;
+  const ok = await fetch('/api/auth-demo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,pass})}).then(r=>r.json());
+  if(ok.authorized){ localStorage.setItem('humai_user',email); location.href='/dashboard/index.html'; }
+  else alert('Pogrešna lozinka');
+};
+</script>
+</body></html>
