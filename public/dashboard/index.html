@@ -1,1 +1,62 @@
+<!DOCTYPE html><html lang="bs"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HumAI • Dashboard</title><link rel="stylesheet" href="/styles.css">
+</head><body>
+<header><div class="container"><h1>HumAI • Dashboard</h1></div></header>
+<main class="container" id="app">
+  <section class="card" id="summary"></section>
+  <section class="card"><h2>Dnevni zadaci</h2><div id="tasks" class="grid"></div></section>
+  <section class="card"><h2>Metrike</h2><div id="metrics" class="meta">HR / Effort (mini graf placeholder)</div></section>
+  <section class="card"><h2>Akcije</h2>
+    <div class="row">
+      <button class="btn btn-primary" id="night">🌙 Nightly summary</button>
+    </div>
+  </section>
+</main>
+<div class="footer">© bpm.ba • HumAI</div>
+
+<script>
+const userId = localStorage.getItem('humai_user') || 'demo@bpm.ba';
+async function load(){
+  const data = await fetch('/api/dashboard?userId='+encodeURIComponent(userId)).then(r=>r.json());
+  const p = data.todayPlan || {};
+  document.getElementById('summary').innerHTML =
+    `<h2>Današnji plan — ${ (p.summary?.name || 'Athlete') }</h2>
+     <p class="meta">Program: ${p.summary?.program||'-'} &nbsp; Effort: ${p.summary?.effortPct||0}%</p>
+     <p class="meta">AI sugestija: ${p.summary?.aiSuggestion||'-'}</p>`;
+  const tasks = p.tasks||[];
+  const wrap = document.getElementById('tasks'); wrap.innerHTML='';
+  tasks.forEach(t=>{
+    const el = document.createElement('div');
+    el.className='task';
+    el.innerHTML = `
+      <input type="checkbox" ${t.done?'checked':''} data-id="${t.id}">
+      <div>
+        <div><strong>${t.name}</strong> <span class="badge">${t.target||''}</span></div>
+        <div class="meta">${t.start||''}–${t.end||''} &nbsp; Prioritet: ${t.priority||'-'}</div>
+        <textarea placeholder="Komentar..." data-id="${t.id}">${t.comment||''}</textarea>
+        ${(t.links||[]).map(u=>`<div class="meta"><a style="color:#8FFF00" href="${u}" target="_blank">link</a></div>`).join('')}
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-primary" onclick="completeTask('${t.id}')">✅ Završi</button>
+        </div>
+      </div>`;
+    wrap.appendChild(el);
+  });
+}
+async function completeTask(taskId){
+  const chk = document.querySelector(`input[type="checkbox"][data-id="${taskId}"]`);
+  const txt = document.querySelector(`textarea[data-id="${taskId}"]`);
+  await fetch('/api/bpmn/task',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ instanceId: null, userId, taskKey: taskId, result: { done: !!chk.checked, comment: txt.value } })
+  });
+  load();
+}
+document.getElementById('night').onclick = async ()=>{
+  await fetch('/api/bpmn/signal',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ instanceId:null, userId, summary:{ notes:"kraj dana (demo)" } })
+  }); load();
+};
+load();
+</script>
+</body></html>
 
