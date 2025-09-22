@@ -1,1 +1,17 @@
-
+:root { --bg:#0f1a25; --panel:#121e2b; --accent:#0A66C2; --ok:#16a34a; --text:#e6eef7; }
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}
+header{padding:20px;background:#0c1421;position:sticky;top:0} header h1{margin:0;font-size:20px}
+.container{max-width:960px;margin:24px auto;padding:0 16px}
+.card{background:var(--panel);border:1px solid #213042;border-radius:16px;padding:20px;margin:16px 0}
+h2{margin:0 0 12px;font-size:22px} p{opacity:.9}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;font-weight:600;text-decoration:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-outline{border:2px solid var(--accent);color:var(--accent)}
+.grid{display:grid;gap:16px} @media(min-width:768px){.grid{grid-template-columns:repeat(2,1fr)}}
+.task{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid #2a3a4a;border-radius:12px;background:#0f1b29}
+.task input[type="checkbox"]{width:22px;height:22px;margin-top:2px}
+.task .meta{font-size:14px;opacity:.85}
+.footer{padding:24px 0;opacity:.7;text-align:center}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#1e2d3d;border:1px solid #2a3a4a;font-size:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+input,textarea{width:100%;background:#0e1926;border:1px solid #2a3a4a;color:#e6eef7;border-radius:10px;padding:10px}
