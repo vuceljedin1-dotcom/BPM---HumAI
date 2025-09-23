@@ -1,62 +1,158 @@
 <!DOCTYPE html><html lang="bs"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>HumAI • Dashboard</title><link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HumAI • Dashboard</title>
+<link rel="stylesheet" href="/styles.css">
 </head><body>
-<header><div class="container"><h1>HumAI • Dashboard</h1></div></header>
-<main class="container" id="app">
-  <section class="card" id="summary"></section>
-  <section class="card"><h2>Dnevni zadaci</h2><div id="tasks" class="grid"></div></section>
-  <section class="card"><h2>Metrike</h2><div id="metrics" class="meta">HR / Effort (mini graf placeholder)</div></section>
-  <section class="card"><h2>Akcije</h2>
-    <div class="row">
-      <button class="btn btn-primary" id="night">🌙 Nightly summary</button>
+<div class="header"><div class="container wrap">
+  <div class="brand"><div class="logo"></div><div class="brand-title">HumAI • Dashboard</div></div>
+  <nav class="nav"><a class="btn ghost" href="/">Početna</a><a class="btn ghost" href="/register/">Register</a></nav>
+</div></div>
+
+<main class="container" style="padding:18px 0">
+  <!-- Tabovi -->
+  <div class="tabs">
+    <div class="tab active" data-tab="daily">Dnevni plan</div>
+    <div class="tab" data-tab="micro">Mikrociklus</div>
+    <div class="tab" data-tab="realtime">Real-time</div>
+  </div>
+
+  <!-- DAILY -->
+  <section id="view-daily" class="card">
+    <div id="daily-summary"></div>
+    <div style="margin:8px 0"><div class="progress"><span id="effbar" style="width:0%"></span></div></div>
+    <div id="daily-tasks" class="grid"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="nightBtn">🌙 Nightly summary</button>
+    </div>
+  </section>
+
+  <!-- MICRO -->
+  <section id="view-micro" class="card" style="display:none">
+    <h3 style="margin:0 0 12px">Sedmični mikrociklus</h3>
+    <div id="micro-week" class="grid"></div>
+  </section>
+
+  <!-- REALTIME -->
+  <section id="view-realtime" class="card" style="display:none">
+    <h3 style="margin:0 0 12px">Real-time uvid</h3>
+    <div class="grid">
+      <div class="card">
+        <strong>Trenutni HR / Effort</strong>
+        <div class="mini">Auto-refresh svakih 20s</div>
+        <canvas id="rtChart" style="width:100%;height:180px;background:#0c1626;border:1px solid #1a2740;border-radius:10px"></canvas>
+      </div>
+      <div class="card">
+        <strong>Brzi linkovi</strong>
+        <div class="mini"><a href="/register/" target="_blank">Intake form</a> • <a href="#" id="eduLink">Edukacija</a></div>
+        <div id="rtInfo" class="mini" style="margin-top:8px"></div>
+      </div>
     </div>
   </section>
 </main>
+
 <div class="footer">© bpm.ba • HumAI</div>
 
 <script>
+// ——— helpers
+const $ = s => document.querySelector(s);
 const userId = localStorage.getItem('humai_user') || 'demo@bpm.ba';
-async function load(){
-  const data = await fetch('/api/dashboard?userId='+encodeURIComponent(userId)).then(r=>r.json());
-  const p = data.todayPlan || {};
-  document.getElementById('summary').innerHTML =
-    `<h2>Današnji plan — ${ (p.summary?.name || 'Athlete') }</h2>
-     <p class="meta">Program: ${p.summary?.program||'-'} &nbsp; Effort: ${p.summary?.effortPct||0}%</p>
-     <p class="meta">AI sugestija: ${p.summary?.aiSuggestion||'-'}</p>`;
-  const tasks = p.tasks||[];
-  const wrap = document.getElementById('tasks'); wrap.innerHTML='';
-  tasks.forEach(t=>{
+let instanceId = localStorage.getItem('humai_instance') || null;
+
+// ——— tabovi
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  ['daily','micro','realtime'].forEach(v => $('#view-'+v).style.display = (v===t.dataset.tab?'block':'none'));
+});
+
+// ——— učitaj stanje
+async function fetchState(){
+  const r = await fetch(`/api/dashboard?userId=${encodeURIComponent(userId)}${instanceId?`&instanceId=${encodeURIComponent(instanceId)}`:''}`);
+  return r.json();
+}
+function pct(n){ n = Number(n||0); if (n<0) n=0; if(n>100) n=100; return n; }
+
+function renderDaily(plan){
+  const s = plan.summary||{};
+  $('#daily-summary').innerHTML = `
+    <h2 style="margin:0 0 6px">Današnji plan — ${s.name||'Athlete'}</h2>
+    <div class="mini">Program: ${s.program||'—'} • Effort: <strong>${pct(s.effortPct)}%</strong></div>
+    <div class="mini" style="margin-top:8px">AI: ${s.aiSuggestion||'—'}</div>`;
+  $('#effbar').style.width = pct(s.effortPct)+'%';
+
+  const list = $('#daily-tasks'); list.innerHTML='';
+  (plan.tasks||[]).forEach(t=>{
     const el = document.createElement('div');
-    el.className='task';
+    el.className = 'task';
     el.innerHTML = `
-      <input type="checkbox" ${t.done?'checked':''} data-id="${t.id}">
+      <input type="checkbox" ${t.done?'checked':''} data-id="${t.id||t.name}">
       <div>
-        <div><strong>${t.name}</strong> <span class="badge">${t.target||''}</span></div>
-        <div class="meta">${t.start||''}–${t.end||''} &nbsp; Prioritet: ${t.priority||'-'}</div>
-        <textarea placeholder="Komentar..." data-id="${t.id}">${t.comment||''}</textarea>
-        ${(t.links||[]).map(u=>`<div class="meta"><a style="color:#8FFF00" href="${u}" target="_blank">link</a></div>`).join('')}
-        <div class="row" style="margin-top:8px">
-          <button class="btn btn-primary" onclick="completeTask('${t.id}')">✅ Završi</button>
+        <div><strong>${t.name||''}</strong> &nbsp; <span class="badge ${t.priority==1?'p1':t.priority==2?'p2':'p3'}">P${t.priority||'-'}</span></div>
+        <div class="meta">${t.start||''}–${t.end||''} • Target: ${t.target||''}</div>
+        <textarea placeholder="Komentar…" data-id="${t.id||t.name}">${t.comment||''}</textarea>
+        <div class="toolbar">
+          ${(t.links||[]).map(u=>`<a class="btn ghost" href="${u}" target="_blank">🔗 link</a>`).join('')}
+          <button class="btn primary" onclick="completeTask('${t.id||t.name}')">✅ Završi</button>
         </div>
-      </div>`;
-    wrap.appendChild(el);
+      </div>
+      <div class="mini" style="min-width:64px;text-align:right">${t.done?(t.effortPct? t.effortPct+'%':''):''}</div>`;
+    list.appendChild(el);
   });
 }
-async function completeTask(taskId){
-  const chk = document.querySelector(`input[type="checkbox"][data-id="${taskId}"]`);
-  const txt = document.querySelector(`textarea[data-id="${taskId}"]`);
+
+function renderMicro(week){
+  const wrap = $('#micro-week'); wrap.innerHTML='';
+  const days = week?.days || []; // očekuje {day:"Mon", plan:{summary, tasks[]}}
+  if(!days.length){ wrap.innerHTML = '<div class="mini">Nema podataka za ovu sedmicu.</div>'; return; }
+  days.forEach(d=>{
+    const card = document.createElement('div');
+    card.className='card';
+    const eff = pct(d.plan?.summary?.effortPct||0);
+    card.innerHTML = `<strong>${d.day||''}</strong><div class="mini">${d.plan?.summary?.program||''}</div>
+      <div class="progress" style="margin:8px 0"><span style="width:${eff}%"></span></div>
+      <div class="mini">${(d.plan?.tasks||[]).slice(0,3).map(t=>t.name).join(' • ')}</div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function drawRt(points){
+  const c = $('#rtChart'), x = c.getContext('2d');
+  const W = c.width = c.clientWidth * devicePixelRatio, H = c.height = c.clientHeight * devicePixelRatio;
+  x.clearRect(0,0,W,H); const m={l:40,r:10,t:10,b:20}, w=W-m.l-m.r, h=H-m.t-m.b;
+  const ys = points.map(p=>p.hr||p.y||0); const xs = points.map(p=>p.t||0);
+  const minY=Math.min(60, ...ys), maxY=Math.max(170, ...ys); const minX=Math.min(...xs), maxX=Math.max(...xs);
+  const X=v=>m.l+((v-minX)/(maxX-minX||1))*w, Y=v=>H-m.b-((v-minY)/(maxY-minY||1))*h;
+  x.strokeStyle="#1e2b41"; for(let i=0;i<=4;i++){ const y=m.t+i*(h/4); x.beginPath(); x.moveTo(m.l,y); x.lineTo(W-m.r,y); x.stroke(); }
+  x.strokeStyle="#8FFF00"; x.lineWidth=2; x.beginPath();
+  points.forEach((p,i)=>{ const xp=X(p.t||i), yp=Y(p.hr||p.y||0); i?x.lineTo(xp,yp):x.moveTo(xp,yp) }); x.stroke();
+}
+
+async function boot(){
+  const data = await fetchState();  // očekuje { state, todayPlan, weekly?, realtime? }
+  const plan = data.todayPlan || { summary:{}, tasks:[], metrics:[] };
+  renderDaily(plan);
+  // mikrociklus (ako postoji); ako ne, gradi iz danas+placeholdera
+  renderMicro(data.weekly || null);
+  // realtime
+  drawRt((data.realtime?.metrics)||plan.metrics||[]);
+  $('#rtInfo').textContent = `Instanca: ${data.instanceId||'(nepoznato)'} • Status: ${(data.state?.status)||'—'}`;
+}
+boot();
+
+// ——— akcije
+async function completeTask(id){
+  const checked = document.querySelector(`input[type="checkbox"][data-id="${id}"]`)?.checked || false;
+  const comment = document.querySelector(`textarea[data-id="${id}"]`)?.value || '';
   await fetch('/api/bpmn/task',{method:'POST',headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ instanceId: null, userId, taskKey: taskId, result: { done: !!chk.checked, comment: txt.value } })
+    body: JSON.stringify({ instanceId, userId, taskKey:id, result:{ done: checked, comment } })
   });
-  load();
+  boot();
 }
-document.getElementById('night').onclick = async ()=>{
+document.getElementById('nightBtn').onclick = async ()=>{
   await fetch('/api/bpmn/signal',{method:'POST',headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ instanceId:null, userId, summary:{ notes:"kraj dana (demo)" } })
-  }); load();
+    body: JSON.stringify({ instanceId, userId, summary:{ notes:'auto 22:00 (manual trigger)' } })
+  });
+  boot();
 };
-load();
 </script>
 </body></html>
-
