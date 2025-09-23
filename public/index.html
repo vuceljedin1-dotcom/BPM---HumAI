@@ -1,32 +1,57 @@
 <!DOCTYPE html><html lang="bs"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HumAI — BPM RED Academy</title>
 <link rel="stylesheet" href="/styles.css">
 </head><body>
-<header><div class="container"><h1>HumAI — BPM RED Academy</h1><p>Human-Centred Health/Sport-Tech</p></div></header>
+<div class="header"><div class="container wrap">
+  <div class="brand"><div class="logo"></div><div class="brand-title">HumAI • BPM RED Academy</div></div>
+  <nav class="nav">
+    <a class="btn ghost" href="/register/">Register</a>
+    <a class="btn ghost" href="/login/">Log In</a>
+    <a class="btn primary" href="/dashboard/">Open Dashboard</a>
+  </nav>
+</div></div>
 
 <main class="container">
-  <section class="card">
-    <h2>Dobrodošli</h2>
-    <p>Kreiraj profil (pokreće BPMN onboarding) ili se prijavi za lični BPM Dashboard.</p>
-    <div class="row">
-      <a class="btn btn-primary" href="/register/index.html">Register</a>
-      <a class="btn btn-outline" href="/login/index.html">Log In</a>
-      <a class="btn btn-primary" href="/dashboard/index.html">Dashboard</a>
+  <section class="hero">
+    <div class="stage">
+      <div class="card">
+        <span class="badge">Human-Centred Health / Sport-Tech • Digital Twin of Performance</span>
+        <h1 class="h1">Najbrži put od <em>intake-a</em> do real-time plana i rezultata.</h1>
+        <p class="lead">HumAI orkestrira tvoj 6-mjesečni cilj kroz BPMN (Camunda-stil), mikrocikluse i dnevne planove — s AI sugestijama, effort-based credentialingom i real-time prilagodbama.</p>
+        <div class="toolbar">
+          <a class="btn primary" href="/register/">Započni (BPMN onboarding)</a>
+          <a class="btn accent" href="/dashboard/">Otvori Dashboard</a>
+          <a class="btn ghost" href="/login/">Prijava</a>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><strong>6-mj strategija</strong><div class="mini">auto-generisana iz intake-a</div></div>
+          <div class="kpi"><strong>Real-time</strong><div class="mini">triggeri senzora + dnevni summary</div></div>
+          <div class="kpi"><strong>AI sugestije</strong><div class="mini">valid JSON za sigurne UI prikaze</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 6px">Šta isporučujemo</h3>
+        <ul class="mini" style="margin:8px 0 0 16px;line-height:1.9">
+          <li>Digital Twin: mikrociklusi → dnevni plan → evaluacija (BPMN)</li>
+          <li>Effort-based credentialing (ne samo volumen)</li>
+          <li>AI sažeci, prevencija pretreniranosti, progresija opterećenja</li>
+          <li>Hyperstack Cloud serving (brzo, sigurno), NVIDIA-ready</li>
+          <li>Camunda-like orkestracija: START / TASK / SIGNAL / QUERY</li>
+          <li>Bez trenja: Forms → Plan → ✅ Zadaci → 🌙 Summary</li>
+        </ul>
+      </div>
     </div>
   </section>
 
-  <section class="card">
-    <h2>Šta dobijaš</h2>
-    <div class="grid">
-      <div><span class="badge">6-mj strategija</span><p>Struktuirano po mjesecima, sedmicama i danima.</p></div>
-      <div><span class="badge">Real-time BPMN</span><p>Proces se izvršava kao Camunda 8 orkestrator.</p></div>
-      <div><span class="badge">Effort-based</span><p>Plan i evaluacija po naporu, ne samo po volumenu.</p></div>
-      <div><span class="badge">AI sugestije</span><p>Sažeci, preporuke i prilagodbe plana.</p></div>
+  <section class="section">
+    <div class="grid cols-3">
+      <div class="card"><h3>Inovacija</h3><p class="mini">End-to-end BPMN orkestracija u sport-techu sa strogo validnim JSON-om — UI nikad ne “puca”.</p></div>
+      <div class="card"><h3>Vrijednost</h3><p class="mini">Od prvog dana: personalni plan, mjerljiv effort, jasni taskovi i feedback petlja.</p></div>
+      <div class="card"><h3>Skaliranje</h3><p class="mini">Hyperstack Cloud danas, TensorRT/Triton sutra — isti frontend, samo promijeni BACKEND_URL.</p></div>
     </div>
   </section>
 </main>
 
 <div class="footer">© bpm.ba • HumAI</div>
 </body></html>
-
