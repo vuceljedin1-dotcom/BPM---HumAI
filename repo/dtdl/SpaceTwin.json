@@ -1,1 +1,14 @@
-
+{
+"@id": "dtmi:bpm:SpaceTwin;1",
+"@type": "Interface",
+"@context": "dtmi:dtdl:context;3",
+"displayName": "SpaceTwin",
+"contents": [
+{"@type":"Property","name":"zoneName","schema":"string"},
+4
+{"@type":"Property","name":"occupancy","schema":"integer"},
+{"@type":"Property","name":"equipment","schema":
+{"@type":"Array","elementSchema":"string"}},
+{"@type":"Relationship","name":"bookedBy","target":"dtmi:bpm:MemberTwin;1"}
+]
+}
