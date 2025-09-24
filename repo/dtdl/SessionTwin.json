@@ -1,1 +1,27 @@
+{
+"@id": "dtmi:bpm:SessionTwin;1",
+"@type": "Interface",
+"@context": "dtmi:dtdl:context;3",
+"displayName": "SessionTwin",
+"contents": [
+3
+{"@type":"Property","name":"startedAt","schema":"dateTime"},
+{"@type":"Property","name":"durationMin","schema":"integer"},
+{"@type":"Property","name":"sessionType","schema":"string"},
+{"@type":"Property","name":"inputs","schema":{"@type":"Object","fields":[
+{"name":"rpe","schema":"integer"},
+{"name":"sets","schema":"integer"},
+{"name":"reps","schema":"integer"}
+]}},
+{"@type":"Property","name":"outputs","schema":{"@type":"Object","fields":[
+{"name":"load","schema":"double"},
+{"name":"hr","schema":"double"},
+{"name":"emgFeatures","schema":"string"}
+]}},
+{"@type":"Property","name":"anomalies","schema":
+{"@type":"Array","elementSchema":"string"}},
+{"@type":"Relationship","name":"ofPlan","target":"dtmi:bpm:PlanTwin;1"},
+{"@type":"Relationship","name":"produced","target":"dtmi:bpm:MetricTwin;1"}
+]
+}
 
