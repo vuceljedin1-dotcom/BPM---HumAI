@@ -1,1 +1,21 @@
-
+{
+"@id": "dtmi:bpm:DeviceTwin;1",
+"@type": "Interface",
+"@context": "dtmi:dtdl:context;3",
+2
+"displayName": "DeviceTwin",
+"contents": [
+{"@type":"Property","name":"deviceType","schema":"string"},
+{"@type":"Property","name":"manufacturer","schema":"string"},
+{"@type":"Property","name":"model","schema":"string"},
+{"@type":"Property","name":"serial","schema":"string"},
+{"@type":"Property","name":"firmwareVersion","schema":"string"},
+{"@type":"Property","name":"calibrationDate","schema":"date"},
+{"@type":"Property","name":"capabilities","schema":{"@type":"Map","mapKey":
+{"name":"name","schema":"string"},"mapValue":
+{"name":"details","schema":"string"}}},
+{"@type":"Component","name":"aasSubmodel","schema":"dtmi:bpm:AASSubmodel;
+1"},
+{"@type":"Relationship","name":"belongsTo","target":"dtmi:bpm:MemberTwin;1"}
+]
+}
