@@ -1,1 +1,17 @@
-
+{
+"@id": "dtmi:bpm:PlanTwin;1",
+"@type": "Interface",
+"@context": "dtmi:dtdl:context;3",
+"displayName": "PlanTwin",
+"contents": [
+{"@type":"Property","name":"planType","schema":"string"},
+{"@type":"Property","name":"status","schema":"string"},
+{"@type":"Property","name":"startsOn","schema":"date"},
+{"@type":"Property","name":"endsOn","schema":"date"},
+{"@type":"Property","name":"provenance","schema":"string"},
+{"@type":"Property","name":"versions","schema":
+{"@type":"Array","elementSchema":"string"}},
+{"@type":"Relationship","name":"owner","target":"dtmi:bpm:MemberTwin;1"},
+{"@type":"Relationship","name":"drives","target":"dtmi:bpm:SessionTwin;1"}
+]
+}
