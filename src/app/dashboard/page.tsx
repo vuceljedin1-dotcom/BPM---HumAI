@@ -1,5 +1,5 @@
-import AuthGate from "@/src/components/AuthGate";
-import StartProcessCard from "@/src/components/StartProcessCard";
+import AuthGate from "@/components/AuthGate";
+import StartProcessCard from "@/components/StartProcessCard";
 
 export default function Dashboard(){
   return (
