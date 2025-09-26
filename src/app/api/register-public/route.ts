@@ -6,18 +6,27 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const fullName = (body.fullName || "").trim();
     const email = (body.email || "").trim();
+
     if (!fullName || !email) {
-      return NextResponse.json({ error: "fullName and email required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "fullName and email required" },
+        { status: 400 }
+      );
     }
+
     const user = await sql`
-      insert into users (full_name, email)
+      insert into users (name, contact)
       values (${fullName}, ${email})
       returning id
     `;
+
     const userId = user.rows[0].id as string;
     return NextResponse.json({ userId });
-  } catch (e:any) {
+  } catch (e: any) {
     console.error(e);
-    return NextResponse.json({ error: e?.message ?? "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { error: e?.message ?? "Unknown error" },
+      { status: 500 }
+    );
   }
 }
