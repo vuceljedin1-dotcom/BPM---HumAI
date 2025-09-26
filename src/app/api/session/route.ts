@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/src/lib/auth";
+import { getSupabaseServer } from "@/lib/auth";
 
 export async function GET() {
   const supa = getSupabaseServer();
