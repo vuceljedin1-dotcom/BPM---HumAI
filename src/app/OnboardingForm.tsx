@@ -1,39 +1,55 @@
+// src/components/OnboardingForm.tsx
 "use client";
 
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingForm() {
-  const [msg, setMsg] = useState<string | null>(null);
+  const [goal, setGoal] = useState("");
+  const [exp, setExp] = useState<"beginner"|"intermediate"|"advanced">("beginner");
+  const [consent, setConsent] = useState(false);
+  const router = useRouter();
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setMsg("Hvala! Obrada u toku — plan će biti generisan.");
-    // TODO: pozovi /api/register-public pa /api/ai/plan
+  async function save() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("Not signed in");
+    const { error } = await supabase.from("onboarding").upsert({
+      user_id: user.id,
+      goal,
+      experience_level: exp,
+      consent
+    });
+    if (error) alert(error.message);
+    else router.push("/dashboard");
   }
 
   return (
-    <div style={{ border: "1px solid #eee", padding: 16, borderRadius: 8 }}>
-      <h3>Onboarding</h3>
-      {msg && (
-        <div style={{ background: "#f6f6f6", padding: 10, marginBottom: 10 }}>
-          {msg}
-        </div>
-      )}
-      <form onSubmit={onSubmit}>
-        <label>
-          Ime i prezime*<br />
-          <input name="fullName" required />
-        </label>
-        <br />
-        <br />
-        <label>
-          Email*<br />
-          <input type="email" name="email" required />
-        </label>
-        <br />
-        <br />
-        <button type="submit">Pošalji</button>
-      </form>
+    <div className="space-y-4">
+      <input
+        className="w-full border p-3 rounded"
+        placeholder="Your main goal"
+        value={goal}
+        onChange={e => setGoal(e.target.value)}
+      />
+      <select
+        className="w-full border p-3 rounded"
+        value={exp}
+        onChange={e => setExp(e.target.value as any)}
+      >
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} />
+        I agree to data processing for coaching.
+      </label>
+      <button onClick={save} className="p-3 rounded bg-black text-white">
+        Save & Continue
+      </button>
     </div>
+  );
+}    </div>
   );
 }
