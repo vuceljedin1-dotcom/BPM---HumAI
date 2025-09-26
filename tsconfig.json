@@ -10,7 +10,10 @@
     "resolveJsonModule": true,
     "jsx": "preserve",
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": {
+      "@/*": ["src/*"],
+      "@/lib/*": ["lib/*"]       // <— BITNO: novi alias
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
