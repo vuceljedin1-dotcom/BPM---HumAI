@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/src/lib/auth";
-import { callHyperstack } from "@/src/lib/hyperstack";
+import { getSupabaseServer } from "@/lib/auth";
+import { callHyperstack } from "@/lib/hyperstack";
 
 export async function POST() {
   const supa = getSupabaseServer();
