@@ -1,25 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+async function callHyperStackPlan(userId: string, payload: any, idem?: string) {
+  const url = process.env.HYPERSTACK_URL!;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.HYPERSTACK_API_KEY}`,
+      "Content-Type": "application/json",
+      ...(idem ? { "Idempotency-Key": idem } : {})
+    },
+    body: JSON.stringify({
+      model: process.env.HYPERSTACK_MODEL,
+      input: payload,
+      meta: { userId }
+    })
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`HyperStack error ${res.status}: ${txt}`);
+  }
+  return res.json(); // { jobId?, plan?, ... }
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    const { userId } = await req.json();
     if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
+    const idem = req.headers.get("Idempotency-Key") ?? undefined;
+
+    const hs = await callHyperStackPlan(userId, { kind: "intake_to_plan", userId }, idem);
 
     const plan = await sql`
-      select p.id, p.status, pv.content
-      from plans p
-      join plan_versions pv on pv.plan_id = p.id
-      where p.user_id = ${userId}
-      order by pv.version desc
-      limit 1
+      insert into plans (user_id, type, status, provenance)
+      values (${userId}, 'combined', 'proposed', ${JSON.stringify({
+        hyperstackJobId: hs?.jobId ?? null,
+        modelAlias: process.env.HYPERSTACK_MODEL,
+        promptHash: "sha256:..."
+      })})
+      returning id
     `;
-    if (!plan.rows.length) return NextResponse.json({ error: "no plan" }, { status: 404 });
+    await sql`
+      insert into plan_versions (plan_id, version, content, provenance)
+      values (${plan.rows[0].id}, 1, ${JSON.stringify(hs?.plan ?? hs)}::jsonb, ${JSON.stringify({ source:"hyperstack" })}::jsonb)
+    `;
 
-    const row = plan.rows[0] as any;
-    return NextResponse.json({ planId: row.id, status: row.status, content: row.content });
-  } catch (e: any) {
+    return NextResponse.json({ planId: plan.rows[0].id, status: "proposed" });
+  } catch (e:any) {
+    console.error(e);
     return NextResponse.json({ error: e?.message ?? "Unknown error" }, { status: 500 });
   }
 }
