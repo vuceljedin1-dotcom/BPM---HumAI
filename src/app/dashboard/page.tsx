@@ -1,14 +1,15 @@
-import AuthGate from "@/components/AuthGate";
-import StartProcessCard from "@/components/StartProcessCard";
+"use client";
 
-export default function Dashboard(){
+import AuthGate from "@/components/AuthGate";                // ← promjena
+import StartProcessCard from "@/components/StartProcessCard"; // ← promjena
+
+export default function DashboardPage() {
   return (
     <AuthGate>
-      <main className="max-w-3xl mx-auto p-6 space-y-6">
-        <h1 className="text-2xl font-bold">Your Dashboard</h1>
-        <StartProcessCard/>
-      </main>
+      <div style={{ maxWidth: 900, margin: "40px auto", fontFamily: "system-ui" }}>
+        <h1>Dashboard</h1>
+        <StartProcessCard />
+      </div>
     </AuthGate>
   );
 }
-
