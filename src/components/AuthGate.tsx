@@ -1,13 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabaseClient";
 
-export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    supabase.auth.getSession().then(() => setReady(true));
-  }, []);
-  if (!ready) return <div className="p-6">Loading…</div>;
+import { ReactNode } from "react";
+
+export default function AuthGate({ children }: { children: ReactNode }) {
+  // TODO: zamijeni stvarnom auth provjerom (Supabase ili sl.)
   return <>{children}</>;
 }
-
