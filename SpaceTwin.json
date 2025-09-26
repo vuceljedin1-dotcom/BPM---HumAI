@@ -1,1 +1,72 @@
+{
+  "@id": "dtmi:bpm:SpaceTwin;1",
+  "@type": "Interface",
+  "@context": "dtmi:dtdl:context;3",
+  "displayName": "Space Twin",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "spaceId",
+      "schema": "string",
+      "description": "Stable identifier of the physical space or zone."
+    },
+    {
+      "@type": "Property",
+      "name": "name",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "kind",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          { "name": "Lab", "enumValue": "lab" },
+          { "name": "Gym", "enumValue": "gym" },
+          { "name": "Outdoor", "enumValue": "outdoor" }
+        ]
+      }
+    },
+    {
+      "@type": "Property",
+      "name": "capacity",
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "openHours",
+      "schema": "string",
+      "description": "Opening hours e.g. Mo-Fr 08:00-20:00; Sa 10:00-16:00"
+    },
+    {
+      "@type": "Property",
+      "name": "sensors",
+      "schema": {
+        "@type": "Map",
+        "mapKey": { "name": "sensorId", "schema": "string" },
+        "mapValue": {
+          "name": "spec",
+          "schema": {
+            "@type": "Object",
+            "fields": [
+              { "name": "type", "schema": "string" },
+              { "name": "unit", "schema": "string" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "@type": "Relationship",
+      "name": "hostsDevices",
+      "target": "dtmi:bpm:DeviceTwin;1"
+    },
+    {
+      "@type": "Relationship",
+      "name": "scheduledSessions",
+      "target": "dtmi:bpm:SessionTwin;1"
+    }
+  ]
+}
 
