@@ -1,4 +1,3 @@
-// src/lib/types.ts
 export type IntakePayload = {
   fullName: string; email: string;
   phone?: string; dateOfBirth?: string; gender?: string; bloodType?: string;
